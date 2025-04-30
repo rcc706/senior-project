@@ -1,3 +1,4 @@
+-- Inserting scenarios
 INSERT INTO SCENARIOS (SCENNAME) VALUES ('Roadside Ambush');
 INSERT INTO SCENARIOS (SCENNAME) VALUES ('A Hole in the Wall');
 INSERT INTO SCENARIOS (SCENNAME) VALUES ('The Black Ship');
@@ -24,6 +25,7 @@ INSERT INTO SCENARIOS (SCENNAME) VALUES ('Best of the Best');
 INSERT INTO SCENARIOS (SCENNAME) VALUES ('Warding the Void');
 INSERT INTO SCENARIOS (SCENNAME) VALUES ('The Greatest Job in the World');
 
+-- Inserting items
 INSERT INTO ITEMS (ITEMNAME, ITEMTYPE) VALUES ('Eagle-Eye Goggles', 'head');
 INSERT INTO ITEMS (ITEMNAME, ITEMTYPE) VALUES ('Iron Helmet', 'head');
 INSERT INTO ITEMS (ITEMNAME, ITEMTYPE) VALUES ('Chain Armor', 'chest');

@@ -79,6 +79,7 @@ app.post('/signup', [
         .custom(async (username) => {
             const query = "SELECT USER_NAME FROM USERS WHERE USER_NAME = ?";
 
+            // Make a database query with the select query string and the username from the form
             const [results] = await db.promise().query(query, [username]);
 
             // Should only have 1 user
@@ -93,6 +94,7 @@ app.post('/signup', [
         .custom(async (email) => {
             const query = "SELECT USER_NAME FROM USERS WHERE USER_EMAIL = ?";
 
+            // Make a database query with the select query string and the email from the form
             const [results] = await db.promise().query(query, [email]);
 
             // Should only have 1 email
@@ -111,6 +113,7 @@ app.post('/signup', [
         .isLength({ min: 5, max: 25 }).withMessage("Repeated Password length must be between 5 and 25")
         .isAlphanumeric().withMessage('Repeated Password must be alphanumeric')
         .custom((confpassword, { req }) => {
+            // check if the confpassword from the form is the same from the password from the form
             if (confpassword !== req.body.password) {
                 throw new Error('Repeated password does not match password');
             }
@@ -130,6 +133,8 @@ app.post('/signup', [
     const { username, email, password } = req.body;
     const saltRounds = 10;
 
+    // since no errors --> insert new username, email, and hashed password into the database
+        // using bcrypt to hash the password
     const insertQuery = "INSERT INTO USERS (USER_NAME, USER_EMAIL, USER_PASSWORD) VALUES (?, ?, ?)";
     bcrypt.genSalt(saltRounds, (error, salt) => {
         bcrypt.hash(password, salt, (error, hashedPassword) => {
@@ -177,6 +182,8 @@ app.post('/login', [
                     // temp storing username and email, will be moved to the session below outside of the validator 
                     req.session.user = { username: user.USER_NAME }; 
                     req.session.email = { email: user.USER_EMAIL };
+
+                    // all is good, resolving the promise
                     resolve();
                 });
             });

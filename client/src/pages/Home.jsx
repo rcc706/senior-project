@@ -3,6 +3,8 @@ import home from "../styles/main.module.css";
 
 export default function Home() {
 
+    // navbar data that is passed to the navbar component below
+        // component type, where to, custom style, content displayed, id for rendering
     const NAVBAR_DATA = [
         {compType: 'Link', to: '/home', style: {fontSize: "30px", color: "#d4af37"} , content: 'GH', id: 1},
         {compType: 'NavLinks', content: [{compType: 'Link', to: '/party', content: 'PARTY', id: 4}, {compType: 'Link', to: '/game', content: 'GAME', id: 5}], id: 2},
@@ -12,12 +14,14 @@ export default function Home() {
 
     return (
         <>
+            {/* navbar displaying the links at the top of the page (home, party, game, profile) */}
             <Navbar navbarLinks={NAVBAR_DATA}/>
 
             <div className={home.container} style={{maxWidth: "80%"}}>
                 <h1 style={{textAlign: "center"}}>Gloomhaven Game Assist</h1>
                 <hr style={{color: "#d4af37"}} />
 
+                    {/* Similar to the landing page, paragraphs that tell the users about how the site currently functions and what they can do with it */}
                     <div className={home.subcontainer}>
                         <p>Welcome back to Gloomhaven Game Assist!</p>
                         <p>Whether you play by yourself, or within a party of other people, this website is here to help you. Although it is not connected to the database, you can check out the party page to see an example of what it would look like. There, you would be able to create a new party, edit the party name, and add whatever complete scenarios you’ve done to it. You would also be able to add up to four different characters to that party where each character would have  a name, race, items, gold, experience, level, etc. You would also be able to edit those stats about the character as well as its items. However, that party page is just for looks right now, and you can’t do those things. </p>
