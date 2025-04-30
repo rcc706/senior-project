@@ -1,0 +1,214 @@
+const express = require('express');                                 // Used to make node easier to use
+const cors = require('cors');                                       // Allows cross-origin resource sharing
+const mysql = require('mysql2');                                    // Allows interaction with the database
+const bodyParser = require('body-parser');                          // Parsing parts of the request body
+const bcrypt = require('bcrypt');                                   // Used for hashing the passwords
+const { body, validationResult } = require('express-validator');    // Used for validating form data
+const session = require('express-session');                         // Managing sessions
+
+// Create instance of the server
+const app = express();
+
+// get the server configurations
+const {HOSTNAME, SERVER_PORT, CLIENT_PORT, DB_HOSTNAME, DB_USER, DB_PASSWORD, DB_NAME} = require("./server_configs.js"); 
+
+// store for the sessions (storing sessions in mysql table in the db)
+const MySQLStore = require('express-mysql-session')(session);
+
+// setting up body parser for the sever to parse json data
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// allows communication between server and frontend since on diff ports
+app.use(cors({
+    origin: `${HOSTNAME}:${CLIENT_PORT}`,
+    credentials: true
+}));
+
+// configurations for the database (for connecting)
+const dbConf = {
+    connectionLimit: 10,
+    host: DB_HOSTNAME,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+};
+
+// confgurations for the session store 
+const storeConf = {
+    connectionLimit: 10,
+    host: DB_HOSTNAME,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+    clearExpired: true,
+    checkExpirationInterval: 1200000, 
+    expiration: 1200000, 
+    createDatabaseTable: true
+};
+
+// Connecting to the database and creating session store with configurations
+const db = mysql.createPool(dbConf);
+const sessionStore = new MySQLStore(storeConf);
+
+// session configuration
+app.use(session({
+    key: 'session_cookie_name',
+    secret: 'your_secret_key',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1200000
+    }
+}));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// using express validator to check the form data submission from the signup page
+    // username: trimmed, not empty, length beween 5 and 25 characters, must be alphanumeric
+    // email:    trimed,  not empty, must be an actual email
+    // password: trimmed, not empty, length beween 5 and 25 characters, must be alphanumeric
+    // conf password: follows same restrictions as password, must also match password
+
+app.post('/signup', [
+    body('username')
+        .trim()
+        .notEmpty().withMessage("Username cannot be empty")
+        .isLength({ min: 5, max: 25 }).withMessage("Username length must be between 5 and 25")
+        .isAlphanumeric().withMessage('Username must be alphanumeric')
+        .custom(async (username) => {
+            const query = "SELECT USER_NAME FROM USERS WHERE USER_NAME = ?";
+
+            const [results] = await db.promise().query(query, [username]);
+
+            // Should only have 1 user
+            if (results.length > 0) {
+                throw new Error("Username is already registered")
+            }
+        }),
+    body('email')
+        .trim()
+        .notEmpty().withMessage("Email cannot be empty")
+        .isEmail().withMessage("Email must be a valid email")
+        .custom(async (email) => {
+            const query = "SELECT USER_NAME FROM USERS WHERE USER_EMAIL = ?";
+
+            const [results] = await db.promise().query(query, [email]);
+
+            // Should only have 1 email
+            if (results.length > 0) {
+                throw new Error("Email is already registered")
+            }
+        }),
+    body('password')
+        .trim()
+        .notEmpty().withMessage("Password cannot be empty")
+        .isLength({ min: 5, max: 25 }).withMessage("Password length must be between 5 and 25")
+        .isAlphanumeric().withMessage('Password must be alphanumeric'),
+    body('confpassword')
+        .trim()
+        .notEmpty().withMessage("Repeated Password cannot be empty")
+        .isLength({ min: 5, max: 25 }).withMessage("Repeated Password length must be between 5 and 25")
+        .isAlphanumeric().withMessage('Repeated Password must be alphanumeric')
+        .custom((confpassword, { req }) => {
+            if (confpassword !== req.body.password) {
+                throw new Error('Repeated password does not match password');
+            }
+
+            // express-validator custom functions need to return a truthy value
+                // no errors, all good
+            return true;
+        }),
+], (req, res) => {
+    // Check if the validation returned any errors and send them as an array 
+    // Based it off of the documentation: https://express-validator.github.io/docs/api/validation-result/#array
+    if (!validationResult(req).isEmpty()) {
+        return res.status(400).json({ errors: validationResult(req).array() });
+    }
+
+    // Hashing the new password an inserting username, email, and hashed password into the db
+    const { username, email, password } = req.body;
+    const saltRounds = 10;
+
+    const insertQuery = "INSERT INTO USERS (USER_NAME, USER_EMAIL, USER_PASSWORD) VALUES (?, ?, ?)";
+    bcrypt.genSalt(saltRounds, (error, salt) => {
+        bcrypt.hash(password, salt, (error, hashedPassword) => {
+            db.query(insertQuery, [username, email, hashedPassword]);
+        });
+    });
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// using express validator to check the form data submission from the login page
+    // username: trimmed, not empty
+    // password: trimmed, not empty
+    // the username and password must belong to the same user in the database
+
+app.post('/login', [
+    body('password') // check password from request body
+        .trim()
+        .notEmpty().withMessage("Password cant be empty"),
+    body('username') // check username from request body
+    .trim()
+    .notEmpty().withMessage("Username cant be empty")
+    .custom(async (username, { req }) => {
+        const query = "SELECT USER_NAME, USER_PASSWORD, USER_EMAIL FROM USERS WHERE USER_NAME = ?";         
+
+        // Based this code off of this link: https://stackoverflow.com/questions/49701657/using-a-db-query-as-a-promise/49701714#49701714
+            // Couldn't get the async db.query to work, then the bcrypt.compare that relies on the query finishing first
+            // had to wrap it all up in a promise in order to resolve them at the right time
+        return new Promise((resolve, reject) => {
+            db.query(query, [username], (err, results) => {
+                if (results.length === 0) {
+                    return reject(new Error("Username is not registered"));
+                }
+
+                // Saving resuts from the db query (hopyfully only one user)
+                    // Can access the results with user.USER_(NAME|EMAIL|PASSWORD)
+                const user = results[0];
+
+                // Comparing the password from the request to the hashed password in the database
+                    // if they don't match return an error
+                bcrypt.compare(req.body.password, user.USER_PASSWORD, (err, matched) => {
+                    if (!matched) {
+                        return reject(new Error("Incorrect password"));
+                    }
+
+                    // temp storing username and email, will be moved to the session below outside of the validator 
+                    req.session.user = { username: user.USER_NAME }; 
+                    req.session.email = { email: user.USER_EMAIL };
+                    resolve();
+                });
+            });
+        });
+    }),
+], (req, res) => {
+    // Check if the validation returned any errors and send them as an array 
+    // Based it off of the documentation: https://express-validator.github.io/docs/api/validation-result/#array
+    if (!validationResult(req).isEmpty()) {
+        return res.status(400).json({ errors: validationResult(req).array() });
+    }
+
+    res.status(200).send('Login successful')
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// logs out the user by destroying the session 
+app.post('/logout', (req, res) => {
+    req.session.destroy();
+    res.status(200).send('Logout successful')
+});
+
+// returns the username and email to the frontend to use on the userprofile page
+    // data comes from the session that was initially stored by in the /login route
+app.get('/getUserData', (req, res) => {
+    res.json({username: req.session.user, email: req.session.email});
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Server is listening on the port specified in the server_configs.js file
+app.listen(SERVER_PORT, () => {
+    console.log(`Server running at http://${HOSTNAME}:${SERVER_PORT}`);
+});

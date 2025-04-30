@@ -1,0 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Pirata One', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    overflow: auto; 
+}
+
+body { 
+    background: url("../../assets/gls-canvasbg.jpg") no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+li, a {
+    color: #d1d1d1;
+    text-decoration: none;
+    justify-content: center;
+}
+
+a {
+    color: #d1d1d1;
+    text-decoration: none;
+    justify-content: center;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #342721;
+}
+
+.logo {
+    cursor: pointer;
+    color: rgba(0, 132, 255, 1);
+    border-radius: 50%;
+    transition: all 0.3s ease 0s;
+    vertical-align: middle;
+}
+
+.logo:hover {
+    opacity: 0.7;
+    border: 1px solid #d4af37;
+}
+
+.nav__links {
+    list-style: none;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: auto;
+
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+    gap: 20px; 
+}
+
+.nav__links li {
+    display: left;
+    padding: 0px 15px;
+}
+
+.nav__links li a {
+    transition: 0.3s ease 0s;
+}
+
+.nav__links li a:hover {
+    color: #d4af37;
+}
+
+a:hover {
+    color: #d4af37;
+}
+
+.nav .container {
+    display: flex;
+    gap: 2%;
+}
+
+button {
+    color: #d1d1d1;
+    padding: 9px 15px;
+    background-color: rgba(102, 102, 102, 1);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #d4af37;
+}
+
+.container {
+    max-width: 60%;
+    margin: 5% auto;
+    padding: 20px;
+    background: #342a21;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    position: relative; 
+}
+
+.gameh1 {
+    font-family: 'Pirata One', sans-serif;
+    font-size: 50px;
+    text-align: left;
+    color: #d4af37;
+}
+
+.gameh2 {
+    text-align: center;
+    font-size: 20px;
+    color: #c2bab5;
+    margin-bottom: 20px;
+}
+
+.container h1 {
+    font-family: 'Pirata One', sans-serif;
+    font-size: 50px;
+    text-align: left;
+    color: #d4af37;
+}
+
+.container h2 {
+    text-align: center;
+    font-size: 20px;
+    color: #c2bab5;
+    margin-bottom: 20px;
+}
+
+.subcontainer p {
+    font-family: sans-serif !important;
+    text-align: justify;
+    font-size: 15px;
+    color: #c2bab5;
+    margin-bottom: 20px;
+    overflow-wrap: break-word;
+}
+
+.subcontainer {
+    font-family: sans-serif !important; 
+    max-width: 70%;
+    width: 100%;
+    margin: 3% auto;
+    padding: 3%;
+    background: #1c1c1c;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    text-align: justify;
+    border: 2px solid #d4af37; 
+    position: relative; 
+}
+
+.errorList {
+    clear: both;
+    text-align: center;
+    position: relative;
+    text-align: center;  
+}
+
+.subcontainer:before {
+    content: ''; 
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 1px solid #c2bab5; 
+    border-radius: 6px; 
+    pointer-events: none; 
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #c2bab5;
+    font-size: 20px; 
+}
+
+.footer a {
+    color: #d4af37;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+input {
+    font-family: sans-serif;
+    width: 50%;  
+    padding: 10px;
+    margin: 10px 0;
+    background: #444;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: #fff;
+    display: block;  
+    margin-left: auto; 
+    margin-right: auto; 
+}
+
+select {
+    font-family: sans-serif;
+    width: 50%;  
+    padding: 10px;
+    margin: 10px 0;
+    background: #444;
+    border: 1px solid #666;
+    border-radius: 4px;
+    color: #fff;
+    display: block;  
+    margin-left: auto; 
+    margin-right: auto; 
+}
+
+.signlogButton {
+    width: 25%; 
+    padding: 12px;
+    background: #d4af37;
+    border: none;
+    border-radius: 4px;
+    color: black;
+    font-size: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;  
+}
+
+.signlogButton:hover {
+    background: #cc9a16;
+}
+
+.subcontainer .flexCont {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 8%;
+}
+
+.userprofButton {
+    max-width: fit-content;
+    flex: 1;
+    background: #d4af37;
+    border: none;
+    border-radius: 4px;
+    color: black;
+    font-size: 22px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    padding: 5px;
+}
+
+.userprofButton:hover {
+    background: #cc9a16;
+}
+
+.logoutButton {
+    all: unset;
+    background: none;
+    border: none;
+    padding: 0;
+    color: #d1d1d1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s ease 0s;
+}
+
+.logoutButton:hover {
+    background-color: transparent;
+    color: #d4af37;
+}
+
+.deleteAccountBtn {
+    width: "35%";    
+    padding: 12px;
+    background: #d44a37;
+    border: none;
+    border-radius: 4px;
+    color: #d1d1d1;
+    font-size: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;  
+
+}
+
+.deleteAccountBtn:hover {
+    background: #CC2A16 ;
+}
+
+.charHeader {
+    display: inline-flex;
+}
+
+.charHeader p {
+    font-size: 25px;
+    font-family: 'Pirata One' !important;
+    color: #d1d1d1
+}
+
+.subcontainer li {
+    font-family: sans-serif;
+    font-size: 18px;
+    margin: 0;
+    padding: 1%;
+}
+
+.drag-handle {
+    cursor: move; 
+}
