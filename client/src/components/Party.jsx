@@ -11,7 +11,11 @@ import EditCharForm from "../components/EditCharForm";
 
 export default function Party({ partyName, partyDesc }) {
 
+    // index used for rendering the components so they have different keys
     let nextIndex = 0;
+
+    // states that switch the state of the forms being open or not
+        // FORMS: edit party, new character, delete party, add scenario, delete character, edit character
 
     const [isEditPartyPopupOpen, setEditPartyPopupOpen] = useState(false);
     const toggleEditPartyPopup = () => setEditPartyPopupOpen(!isEditPartyPopupOpen);
@@ -33,6 +37,7 @@ export default function Party({ partyName, partyDesc }) {
 
     return (
         <>
+            {/* Party "header" --> Party name, edit party and delete party buttons -----------------------------------------------------------------------------------------------------------------------------------------------*/}
             <div className={party.container}>
                 <nav>
                     <ul className={party.nav__links}>
@@ -43,6 +48,8 @@ export default function Party({ partyName, partyDesc }) {
                 </nav>
                 <br />
                 <hr style={{color: "#d4af37"}} />
+
+                {/* 1st Party subsection --> Completed scenarios --------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
                 <div className={party.subcontainer}>
                     <div className={party.charHeader}>
                         <p>{partyDesc}</p>
@@ -52,6 +59,8 @@ export default function Party({ partyName, partyDesc }) {
                     <hr />
                     <br />
 
+                {/* HARDCODED GARBAGE - completed scenarios ------------------------------------------------------------------------------------------------------------------------------------------------ */}
+
                     <ul>
                         <li>Roadside Ambush</li>
                         <li>A Hole in the Wall</li>
@@ -60,6 +69,8 @@ export default function Party({ partyName, partyDesc }) {
                         <li>A Deeper Understanding</li>
                     </ul>
                 </div>
+
+                {/* 1st Character: Name and edit character button + delete character button ------------------------------------------------------------------------------------------*/}
 
                 <br />
                 <div className={party.subcontainer}>
@@ -72,6 +83,8 @@ export default function Party({ partyName, partyDesc }) {
 
                     <hr />
                     <br />
+
+                {/* HARDCODED GARBAGE - character stats -------------------------------------------------------------------------------------------------------------------------- */}
 
                     <ul>
                         <li>Stats: 
@@ -93,6 +106,9 @@ export default function Party({ partyName, partyDesc }) {
                         </li>
                     </ul>
                 </div>
+
+                {/* The different popups for all the forms that display from the buttons mentioned above-------------------------------------------------------------------------*/}
+
                 <Popup 
                     key={nextIndex++}
                     isOpen={isEditPartyPopupOpen} 

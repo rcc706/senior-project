@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 export default function AddEnemyBtn() {
 
+    // using useRef for the Draggable component that won't be rendered but still needs to be referenced
     const nodeRef = useRef(null);
 
     return (
