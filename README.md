@@ -39,9 +39,6 @@ Below is a list of all the software and dependencies for this application with e
   - Pm2 6.0.5
   - Nodemon 3.1.9
 
-## Access Code and Web Application
-To access the website for this application, users can go to the following link: http://174.138.47.229:5173/
-
 ## Operating System
 The operating system for the current version of this application is Linux Ubuntu 24.04. All of the instructions throughout the “Dependencies” section are written with that operating system in mind, so if a different operating system is in use for hosting an individual instance of this application, then some of these instructions may not apply.
 
