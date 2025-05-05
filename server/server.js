@@ -400,6 +400,35 @@ app.post('/getCharacterNames', [
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Gets the names of the sscenarios that belong to the party
+
+app.post('/getScenarios', async (req, res) => {
+    // get validation errors and send them back as an array
+
+    try {
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        const charNamesQuery = "SELECT SCENNAME FROM SCENARIOS NATURAL JOIN PARTIES_SCENARIOS WHERE PARTIES_SCENARIOS.PARTY_ID = ?";
+        const [rows3] = await db.promise().query(charNamesQuery, [rows2[0].PARTY_ID]);
+
+        // all is good, return the party names as a JSON
+        return res.status(200).json(rows3);
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Server is listening on the port specified in the server_configs.js file
 app.listen(SERVER_PORT, () => {

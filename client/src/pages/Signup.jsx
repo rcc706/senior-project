@@ -1,8 +1,7 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import home from "../styles/main.module.css";
 import axios from 'axios';
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
 
 // server url from the .env file 
 const serverURL = import.meta.env.VITE_SERVER_URL;
@@ -30,6 +29,7 @@ export default function Signup() {
         // Prevent the default html form (reloading page) and clearing any errors that are left in the errors array state
         e.preventDefault();
         setErrors([]); 
+        errorsArray = [];
 
         // Make a post request to the server at the signup route, passing in the username, email, password, and confirmed password as an object
         axios.post(`${serverURL}/signup`, {username: username, email: email, password: password, confpassword: confpassword})
@@ -40,9 +40,6 @@ export default function Signup() {
             setEmail('');
             setPassword('');   
             setConfPassword('');
-
-            // user is signed in, will redirect to login page
-            setSignedUp(true);
 
             // clear the errors
             setErrors([]);
@@ -95,9 +92,6 @@ export default function Signup() {
                     <input type="password" name="confirm_password" placeholder="Confirm Password" value={confpassword} onChange={(e) => setConfPassword(e.target.value)} required /> 
                     <button type="submit" className={home.signlogButton}>SIGN UP</button>
                 </form>
-
-                {/* User is signdUp correctly with no errors, navigate to the login page */}
-                {signedUp && <Navigate to="/login" replace={true}/>}
                 
 				{/* if here are any errors, print each error from the errors array and map it to a unique (with key) list element with its error message */}
                 {errors.length > 0 && (

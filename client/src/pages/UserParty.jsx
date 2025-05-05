@@ -71,7 +71,6 @@ export default function UserParty() {
             <Navbar navbarLinks={NAVBAR_DATA}/>
 
             {/* Static component displaying a "party" */}
-            {/* <Party partyName={"The Rebels"} partyDesc={"Scenarios Completed: "}/> */}            
             {parties.map((pty, index) => (
                 <Party key={index} partyName={pty.PARTYNAME} partyDesc={"Scenarios Completed: "} partyId={index}/>
             ))}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import pop from "../styles/popup.module.css";
 import party from "../styles/main.module.css";
 import Popup from "../components/Popup";
@@ -8,8 +8,13 @@ import DeletePartyForm from "../components/DeletePartyForm";
 import AddScenarioForm from "../components/AddScenarioForm";
 import DeleteCharForm from "../components/DeleteCharForm";
 import EditCharForm from "../components/EditCharForm";
+import axios from 'axios';
 
-export default function Party({ partyName, partyDesc }) {
+// serverURL environment variable from the .env file to reduce hardcoding links everywhere
+const serverURL = import.meta.env.VITE_SERVER_URL;
+
+
+export default function Party({ partyName, partyDesc, partyId}) {
 
     // index used for rendering the components so they have different keys
     let nextIndex = 0;
@@ -35,6 +40,34 @@ export default function Party({ partyName, partyDesc }) {
     const [isEditCharPopupOpen, setEditCharPopupOpen] = useState(false);
     const toggleEditCharPopupOpen = () => setEditCharPopupOpen(!isEditCharPopupOpen);
 
+    const [scenarios, setScenarios] = useState([]);
+    const [godpleasehelpme, setgodpleasehelpme] = useState(true);
+
+    const getScenarios = async () => {
+        try {
+
+            // awaiting on the post request to the server (trying to get the names of all the parties that belong to the user)
+            const serverResponse = await axios.post(`${serverURL}/getScenarios`, { partyName: partyName });
+
+            // if the axios post request resolved, then set the parties array to the data of the response (an array)
+            setScenarios(serverResponse.data);
+
+            // user has visited page not for first time idk, womp womp
+            setgodpleasehelpme(false);
+
+
+        } catch (error) {
+            // Won't be displaying errors like in the forms, so replaced with this to avoid updating the errors[] state all the time
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        if (godpleasehelpme) {
+            getScenarios();
+        }
+    });
+
     return (
         <>
             {/* Party "header" --> Party name, edit party and delete party buttons -----------------------------------------------------------------------------------------------------------------------------------------------*/}
@@ -59,15 +92,17 @@ export default function Party({ partyName, partyDesc }) {
                     <hr />
                     <br />
 
-                {/* HARDCODED GARBAGE - completed scenarios ------------------------------------------------------------------------------------------------------------------------------------------------ */}
-
-                    <ul>
-                        <li>Roadside Ambush</li>
-                        <li>A Hole in the Wall</li>
-                        <li>The Black Ship</li>
-                        <li>A Ritual in Stone</li>
-                        <li>A Deeper Understanding</li>
-                    </ul>
+                    {scenarios.length > 0 ? (
+                            <ul>
+                                {scenarios.map(scen => (
+                                    <li key={nextIndex++}>{scen.SCENNAME}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <ul>
+                                <li key={nextIndex++}>No Scenarios Completed</li>
+                            </ul>
+                    )}
                 </div>
 
                 {/* 1st Character: Name and edit character button + delete character button ------------------------------------------------------------------------------------------*/}
