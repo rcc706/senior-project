@@ -24,7 +24,7 @@ export default function useSessionData() {
                 setEmail(res.data.email);
             }
         })
-    });
+    }, []);
 
     // return both the username and email to be used in other pages/components
     return {username, email};

@@ -1,22 +1,24 @@
 import home from "../styles/main.module.css";
 import { useState } from "react";
 import axios from "axios";
+import useSessionData from "../components/useSessionData";
 
 // serverURL environment variable from the .env file to reduce hardcoding links everywhere
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
-export default function GameChoosePartyForm({isOpen, onClose, updateCharsArray}) {
-    
+export default function GameChoosePartyForm({onClose, updateCharsArray}) {
+
     // States for the party that is picked (typed into the input field) and any errors 
     const [pickedParty, setPickedParty] = useState('')
     const [errors, setErrors] = useState([]);
+    const {username} = useSessionData();
 
     // error id for rendering and a temporary storage array for the errors
     let error_id = 0;
     let errorsArray = [];    
 
     // function to update the chars in the list in the party
-    const handleCharsArray = (chArr) => {
+    function handleCharsArray(chArr) {
         updateCharsArray(chArr);
     }
 
@@ -26,38 +28,32 @@ export default function GameChoosePartyForm({isOpen, onClose, updateCharsArray})
         e.preventDefault();
         setErrors([]);
 
-        // make a post request to the server to get the chars that are in the party
-        axios.post(`${serverURL}/getPartyChars`, {partyName: pickedParty}, {withCredentials: true}).then(res => {
-            setErrors([]);
-
+        // make a post request to the server to get the character names of all the characters that are in the party
+        axios.post(`${serverURL}/getCharacterNames`, {uName: username?.username, partyName: pickedParty}, {withCredentials: true})
+        .then(res => {
+            setErrors([]);                  // clearing out errors
+            handleCharsArray(res.data);     // setting array of characters 
+            onClose();                      // closing the form (when submitted correctly)
         }).catch(error => {
-			// Based off of Axios documenation handling errors: https://axios-http.com/docs/handling_errors
-				// error.response.data = data in the body of the reponse from server
-				// errors is the returned array (of messages from express validator)
-				// error.response.data.errors = array of validation errors sent from the server 
-				// validationError.msg = An error message from one of the express-validator validations
-					// more info: https://express-validator.github.io/docs/api/validation-result#error-types
-			if (error.response.data.errors) {
-				for (const validationError of error.response.data.errors) {
-					const newError = { id: error_id++, message: validationError.msg }; // get new error message
-
-					errorsArray.push(newError); // push error onto the temporary error array
-
-					setErrors(errorsArray); // set the errors state to the temporary error array
-
-				}
-			} 
-
-			// error.response.data.message = the message from an error caught by axios
-			// set the errors array (to be renedered out below) to just this one error message
-				// increment the error_id so it can be used when rendering the errors as list elements
-			if (error.response.data.message) {
-				setErrors([{ id: error_id++, message: error.response.data.message }]); // set the errors array to the server error message
-			}
+            if (error.response) {
+                if (error.response.data.errors) {
+                    for (const validationError of error.response.data.errors) {
+                        const newError = { id: error_id++, message: validationError.msg }; // get new error message
+    
+                        errorsArray.push(newError); // push error onto the temporary error array
+    
+                        setErrors(errorsArray); // set the errors state to the temporary error array
+    
+                    }
+                } 
+                if (error.response.data.message) {
+                    setErrors([{ id: error_id++, message: error.response.data.message }]); // set the errors array to the server error message
+                }
+            } else {
+                console.error(error);
+            }
 		});
     };
-
-
 
     return (
         <>

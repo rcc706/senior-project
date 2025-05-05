@@ -151,8 +151,8 @@ app.post('/signup', [
 
 app.post('/login', [
     body('password') // check password from request body
-        .trim()
-        .notEmpty().withMessage("Password cant be empty"),
+    .trim()
+    .notEmpty().withMessage("Password cant be empty"),
     body('username') // check username from request body
     .trim()
     .notEmpty().withMessage("Username cant be empty")
@@ -209,11 +209,197 @@ app.post('/logout', (req, res) => {
 // returns the username and email to the frontend to use on the userprofile page
     // data comes from the session that was initially stored by in the /login route
 app.get('/getUserData', (req, res) => {
-    res.json({username: req.session.user, email: req.session.email});
+    const user = req.session.user;
+    const email = req.session.email;
+    req.session.save();
+    res.json({username: user, email: email});
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Gets the names of the parties that belong to the user
 
+app.post('/getPartyNames', async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get all the party names for the parties that belong to the user  
+        const pNamesQuery = "SELECT PARTYNAME FROM PARTIES WHERE PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pNamesQuery, [rows1[0].USER_ID]);
+
+        // all is good, return the party names as a JSON
+        return res.status(200).json(rows2);
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// add a party to the database
+
+app.post('/addParty', [
+    body("pName")
+        .trim()
+        .not().isEmpty().withMessage("Party name cant be empty")
+], async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get all the party names for the parties that belong to the user  
+        const pNamesQuery = "SELECT PARTYNAME FROM PARTIES WHERE PARTIES.USER_ID = ? AND PARTIES.PARTYNAME = ?";
+        const [rows2] = await db.promise().query(pNamesQuery, [rows1[0].USER_ID, req.body.pName]);
+
+        // if no party names are returned, the user has no parties listed
+        if (rows2.length > 0) {
+            return res.status(400).json({message: "Party already exists"});
+        }
+
+        // get all the party names for the parties that belong to the user  
+        const insertPartiesQuery = "INSERT INTO PARTIES (PARTYNAME, USER_ID) VALUES (?, ?)";
+        const [rows3] = await db.promise().query(insertPartiesQuery, [req.body.pName, rows1[0].USER_ID]);
+
+        // all is good, return the party names as a JSON
+        return res.status(200).send("Party added successfully");
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// add characters to a party
+app.post('/addCharacter', [
+    body("chName")
+        .trim()
+        .not().isEmpty().withMessage("Chacter name cant be empty")
+        .isAlphanumeric().withMessage("Character name must be alphanumeric"),
+    body("chClass")
+        .not().isEmpty().withMessage("Characer class cant be empty")
+], async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        const dupeCharNames = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARNAME = ? AND CHARACTERS.PARTY_ID = ?";
+        const [rows2] = await db.promise().query(dupeCharNames, [req.body.chName, req.body.partyId]);
+
+        if (rows2.length > 0) {
+            return res.status(400).json({message: "Character name already exists in party"})
+        }
+
+        const dupeCharClass = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARCLASS = ? AND CHARACTERS.PARTY_ID = ?";
+        const [rows3] = await db.promise().query(dupeCharClass, [req.body.chClass, req.body.partyId]);
+
+        if (rows3.length > 0) {
+            return res.status(400).json({message: "Character class already exists in party"})
+        }
+
+        // get all the party names for the parties that belong to the user  
+        const insertCharQuery = "INSERT INTO CHARACTRS (CHARNAME, CHARCLASS, PARTY_ID) VALUES (?, ?, ?)";
+        const [rows4] = await db.promise().query(insertCharQuery, [req.body.ChName, req.body.chClass, req.body.partyId]);
+
+        // all is good, 
+        return res.status(200).send("Character added successfully");
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Gets the names of the parties that belong to the user
+
+app.post('/getCharacterNames', [
+    body("partyName")
+        .trim()
+        .not().isEmpty().withMessage("Party name cant be empty")
+],async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        const charNamesQuery = "SELECT CHARNAME FROM CHARACTERS WHERE CHARACTERS.PARTY_ID = ?";
+        const [rows3] = await db.promise().query(charNamesQuery, [rows2[0].PARTY_ID]);
+
+        // check if the party id doesn't exist 
+        if (rows3.length === 0) {
+            return res.status(400).json({message: "Party has no characters"});
+        }
+
+        // all is good, return the party names as a JSON
+        return res.status(200).json(rows3);
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Server is listening on the port specified in the server_configs.js file
 app.listen(SERVER_PORT, () => {

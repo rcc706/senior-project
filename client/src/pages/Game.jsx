@@ -5,6 +5,7 @@ import { useState } from "react";
 import GameChoosePartyForm from '../components/GameChoosePartyForm';
 import Popup from '../components/Popup';
 import EnemyCardList from '../components/EnemyCardList';
+import CharCardList from '../components/CharCardList';
 
 export default function Game() {
 
@@ -47,19 +48,12 @@ export default function Game() {
                         />
                     </div>
                 </div>
-            )}  
-
-            {/* displays the game choose party popup form whenever the user opens the page */}
-            <Popup 
-              isOpen={isGamePopupOpen} 
-              onClose={toggleGamePopup} 
-              Component={GameChoosePartyForm}
-            />     
+            )}   
 
             {/* Lists the enemy (cards)  that can be moved around and updated. */}
             <EnemyCardList />
 
-            {/* <CharCardList charsArr={charsArr}/> */}
+            <CharCardList charsArr={charsArr}/>
       </>
     );
 }

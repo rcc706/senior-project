@@ -1,24 +1,48 @@
 import party from "../styles/main.module.css";
 
-export default function Character({ charClass, charName, currLevel, gainedXP, gold, totalPerks }) {
+export default function Character({charClass, charName, charLevel, totalXP, charGold}) {
 
     // state to track of the new character form is open
-    const [isNewCharacterPopupOpen, setNewCharacterPopupOpen] = useState(false);
-    const toggleNewCharacterPopup = () => setNewCharacterPopupOpen(!isNewCharacterPopupOpen);
+    const [isEditCharacterPopupOpen, setEditCharacterPopupOpen] = useState(false);
+    const toggleEditCharacterPopup = () => setEditCharacterPopupOpen(!isEditCharacterPopupOpen);
+
+    const [isDeleteCharacterPopupOpen, setDeleteCharacterPopupOpen] = useState(false);
+    const toggleDeleteCharacterPopup = () => setDeleteCharacterPopupOpen(!isDeleteCharacterPopupOpen);
 
     return (
         <>
+            <br />
             <div className={party.subcontainer}>
-                <nav>
-                    <ul className={party.nav__links}>
-                        {/* return the character name */}
-                        <li><h3>{charName}</h3></li>
+                <div className={party.charHeader}>
+                    <p>{charName}</p>
 
-                        {/* return the character class */}
-                        <li>{charClass}</li>
-                    </ul>
-                </nav>
-            </div>
+                    <button onClick={toggleEditCharacterPopup} className={pop.addScen} style={{right: "60px"}}><img src="../../assets/edit_party.png" alt="editChar" width="24" height="24" /></button>
+                    <button onClick={toggleDeleteCharacterPopup} className={pop.addScen}><img src="../../assets/red_x.png" alt="deleteChar" width="24" height="24" /></button>
+                </div>
+
+                <hr />
+                <br />
+
+                <ul>
+                    <li>Stats: 
+                        <ul>
+                            <li>Class: {charClass}</li>
+                            <li>Level: {charLevel}</li>
+                            <li>Experience Points: {totalXP}</li>
+                            <li>Gold: {charGold}</li>
+                        </ul>
+                    </li>
+                    <li></li>
+                    <li>Items:
+                        <ul>
+                            <li>Head: Iron Helmet</li>
+                            <li>Chest: Chain Armor</li>
+                            <li>One-Handed: Poison Dagger</li>
+                            <li>Feet: Winged Shoes</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> 
         </>
     )
 }

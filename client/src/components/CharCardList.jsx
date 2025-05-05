@@ -10,11 +10,13 @@ export default function CharCardList(props) {
         return null;
     }
 
+    let cardId = 3000;
+
     return (
         <>
-            {/* Map each element of the characters array to a new CharacterCard component with default values and unique key */}
+            {/* create a new CharacterCard component with the default values */}
             {charArr.map((charCard) => (
-                <CharacterCard name={charCard} init={0} rank={'None'} condition={'None'} key={Date.now()} />
+                <CharacterCard key={cardId++} name={charCard.CHARNAME} init={0} rank={'None'} condition={'None'}/>
             ))}
         </>
     );
