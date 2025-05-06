@@ -10,6 +10,7 @@ import DeleteCharForm from "../components/DeleteCharForm";
 import EditCharForm from "../components/EditCharForm";
 import axios from 'axios';
 import useSessionData from "../components/useSessionData";
+import Character from "../components/Character";
 
 
 // serverURL environment variable from the .env file to reduce hardcoding links everywhere
@@ -45,6 +46,7 @@ export default function Party({ partyName, partyDesc, partyId}) {
     const toggleEditCharPopupOpen = () => setEditCharPopupOpen(!isEditCharPopupOpen);
 
     const [scenarios, setScenarios] = useState([]);
+    const [characters, setCharacters] = useState([]);
     const [godpleasehelpme, setgodpleasehelpme] = useState(true);
     const [correctFormSubmission, setCorrectFormSubmission] = useState(false);
     const [parName, setParName] = useState(partyName);
@@ -68,9 +70,25 @@ export default function Party({ partyName, partyDesc, partyId}) {
         }
     }
 
+    const getCharacters = async () => {
+        try {
+
+            // awaiting on the post request to the server (trying to get the names of all the parties that belong to the user)
+            const serverResponse = await axios.post(`${serverURL}/getCharacters`, { uName: username?.username, partyName: parName });
+
+            // if the axios post request resolved, then set the parties array to the data of the response (an array)
+            setCharacters(serverResponse.data);
+
+        } catch (error) {
+            // Won't be displaying errors like in the forms, so replaced with this to avoid updating the errors[] state all the time
+            console.error(error);
+        }
+    }
+
     useEffect(() => {
         if ((godpleasehelpme || correctFormSubmission) && username) {
             getScenarios();
+            getCharacters();
         }
 
         setCorrectFormSubmission(false);
@@ -113,42 +131,19 @@ export default function Party({ partyName, partyDesc, partyId}) {
                     )}
                 </div>
 
-                {/* 1st Character: Name and edit character button + delete character button ------------------------------------------------------------------------------------------*/}
-
                 <br />
-                <div className={party.subcontainer}>
-                    <div className={party.charHeader}>
-                        <p>Osoric Yanthus</p>
 
-                        <button onClick={toggleEditCharPopupOpen} className={pop.addScen} style={{right: "60px"}}><img src="../../assets/edit_party.png" alt="editChar" width="24" height="24" /></button>
-                        <button onClick={toggleDeleteCharPopupOpen} className={pop.addScen}><img src="../../assets/red_x.png" alt="deleteChar" width="24" height="24" /></button>
-                    </div>
+                {characters.map((char, index) => (
+                    <Character 
+                        key={index} 
+                        charClass={char.CHARCLASS}
+                        charName={char.CHARNAME}
+                        charLevel={char.CHARLEVEL}
+                        totalXP={char.TOTALXP}
+                        charGold={char.GOLD}
+                    />
+                ))}
 
-                    <hr />
-                    <br />
-
-                {/* HARDCODED GARBAGE - character stats -------------------------------------------------------------------------------------------------------------------------- */}
-
-                    <ul>
-                        <li>Stats: 
-                            <ul>
-                                <li>Race: Quatryl Demolitionist</li>
-                                <li>Level: 1</li>
-                                <li>Experience Points: 23</li>
-                                <li>Gold: 5</li>
-                            </ul>
-                        </li>
-                        <li></li>
-                        <li>Items:
-                            <ul>
-                                <li>Head: Iron Helmet</li>
-                                <li>Chest: Chain Armor</li>
-                                <li>One-Handed: Poison Dagger</li>
-                                <li>Feet: Winged Shoes</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
 
                 {/* The different popups for all the forms that display from the buttons mentioned above-------------------------------------------------------------------------*/}
 
@@ -187,17 +182,19 @@ export default function Party({ partyName, partyDesc, partyId}) {
                     Component={EditCharForm}
                 />
 
-                <div className={party.subcontainer} style={{width: "20%"}}>
-                    <div className={party.flexCont}>
-                        <button onClick={toggleNewCharacterPopup} className={party.userprofButton}>Add Character</button>
-                        <Popup 
-                            key={nextIndex++}
-                            isOpen={isNewCharacterPopupOpen} 
-                            onClose={toggleNewCharacterPopup} 
-                            Component={NewCharForm}
-                        />                    
+                {characters.length < 4 && (
+                    <div className={party.subcontainer} style={{width: "20%"}}>
+                        <div className={party.flexCont}>
+                            <button onClick={toggleNewCharacterPopup} className={party.userprofButton}>Add Character</button>
+                            <Popup 
+                                key={nextIndex++}
+                                isOpen={isNewCharacterPopupOpen} 
+                                onClose={toggleNewCharacterPopup} 
+                                Component={NewCharForm}
+                            />                    
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </>
     )

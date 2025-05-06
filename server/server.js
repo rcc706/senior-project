@@ -350,7 +350,7 @@ app.post('/addCharacter', [
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Gets the names of the parties that belong to the user
+// Gets the names of the characters that belong a party for a user
 
 app.post('/getCharacterNames', [
     body("partyName")
@@ -549,6 +549,41 @@ app.post('/updatePartyName', [
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// get character data for a party
+
+app.post('/getCharacters', async (req, res) => {
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        const charNamesQuery = "SELECT CHARNAME, TOTALXP, CHARLEVEL, GOLD, CHARCLASS FROM CHARACTERS WHERE CHARACTERS.PARTY_ID = ?";
+        const [rows3] = await db.promise().query(charNamesQuery, [rows2[0].PARTY_ID]);
+
+        // all is good, return the party names as a JSON
+        return res.status(200).json(rows3);
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Server error!"});
+    }
+});
+
 
 // Server is listening on the port specified in the server_configs.js file
 app.listen(SERVER_PORT, () => {

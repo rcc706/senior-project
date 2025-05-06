@@ -1,3 +1,5 @@
+import { useState } from "react";
+import pop from "../styles/popup.module.css";
 import party from "../styles/main.module.css";
 
 export default function Character({charClass, charName, charLevel, totalXP, charGold}) {
