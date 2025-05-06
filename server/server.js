@@ -403,8 +403,6 @@ app.post('/getCharacterNames', [
 // Gets the names of the sscenarios that belong to the party
 
 app.post('/getScenarios', async (req, res) => {
-    // get validation errors and send them back as an array
-
     try {
 
         // get the party id  
@@ -426,6 +424,128 @@ app.post('/getScenarios', async (req, res) => {
         // catch any server errors and send back a message
         return res.status(400).json({message: "Server error!"});
     }
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// add a scenario to the db
+app.post('/addScenario', [
+    body("scenName")
+        .not().isEmpty().withMessage("Scenario must be selencted to add to party")
+], async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        const sidQuery = "SELECT SCEN_ID FROM SCENARIOS WHERE SCENNAME = ?";
+        const [rows4] = await db.promise().query(sidQuery, [req.body.scenName]);
+
+        // check if the user id doesn't exist 
+        if (rows4.length === 0) {
+            return res.status(400).json({message: "Invalid scenario option"});
+        }
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName, rows1[0].USER_ID]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        try {
+            const insertScen = "INSERT INTO PARTIES_SCENARIOS VALUES (?, ?)";
+            const [rows3] = await db.promise().query(insertScen, [rows2[0].PARTY_ID, rows4[0].SCEN_ID]);    
+        } catch (inserterror) {
+            return res.status(400).json({message: "Scenario already completed in this party"});
+        }
+
+
+        // all is good, return the party names as a JSON
+        return res.status(200).send("Added successfully!");
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Sever error!"});
+    }
+
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// update the passed in party name (must still be unique)
+app.post('/updatePartyName', [
+    body("pName")
+        .trim()
+        .not().isEmpty().withMessage("Party name cant be empty")
+        .custom((formPartyName, { req }) => {
+            // check if the confpassword from the form is the same from the password from the form
+            if (formPartyName === req.body.currPName) {
+                throw new Error('New party name cant be same as current party name');
+            }
+
+            // need to include this return true, otherwise express-validator will throw default error message --> "invalid value" (not helpful!)
+                // some info here: https://express-validator.github.io/docs/6.14.0/custom-error-messages/#custom-validator-level
+            return true;
+        })
+], async (req, res) => {
+    // get validation errors and send them back as an array
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.currPName, rows1[0].USER_ID]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Could not find current party id"});
+        }
+
+        // check if the new party name already exists in the users' parties
+        const dupePartyQuery = "SELECT PARTYNAME FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows3] = await db.promise().query(dupePartyQuery, [req.body.pName, rows1[0].USER_ID]);
+
+        if (rows3.length !== 0) {
+            return res.status(400).json({message: "Party name is already used"});
+        }
+
+        try {
+            const updatePNQuery = "UPDATE PARTIES SET PARTYNAME = ? WHERE PARTY_ID = ?";
+            const [rows4] = await db.promise().query(updatePNQuery, [req.body.pName, rows2[0].PARTY_ID]);    
+        } catch (updateError) {
+            return res.status(400).json({message: "Couldn't update party"});
+        }
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: "Sever error!"});
+    }
+
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
