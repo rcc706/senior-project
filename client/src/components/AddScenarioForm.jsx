@@ -17,8 +17,6 @@ export default function AddScenarioForm({onClose, setCorrectFormSubmission, part
     const submitHandler = e => {
 		e.preventDefault();
 
-        console.log(`${username.username}\t${partyName}\t${scenName}`)
-
         // post request to the server with sending the username and password from the login form
 		axios.post(`${serverURL}/addScenario`, { uName: username.username, partyName: partyName, scenName: scenName}, {withCredentials: true})
         .then(res => {

@@ -71,7 +71,7 @@ export default function UserParty() {
             <Navbar navbarLinks={NAVBAR_DATA}/>
 
             {parties.map((pty, index) => (
-                <Party key={index} partyName={pty.PARTYNAME} partyDesc={"Scenarios Completed: "} partyId={index}/>
+                <Party key={index} partyName={pty.PARTYNAME} partyDesc={"Scenarios Completed: "} partyId={index} renderParty={getParties}/>
             ))}
 
             <div className={party.container} style={{width: "20%"}}>

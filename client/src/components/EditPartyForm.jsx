@@ -16,9 +16,10 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
     let error_id = 0;
 	let errorsArray = [];
 
+    console.log(`onclose function: ${onClose}`)
+
     const submitHandler = e => {
 		e.preventDefault();
-
 
         // console.log(username.username) --> will return null (error) if session has expired!
 		// post request to the server with sending the username and password from the login form
@@ -30,6 +31,7 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
 			errorsArray = [];
             setParName(pName);
             setCorrectFormSubmission(true);
+            console.log(onClose);
             onClose();
         }).catch(error => {
             if (error.response) {
