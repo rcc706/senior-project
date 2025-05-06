@@ -54,7 +54,7 @@ export default function Party({ partyName, partyDesc, partyId}) {
         try {
 
             // awaiting on the post request to the server (trying to get the names of all the parties that belong to the user)
-            const serverResponse = await axios.post(`${serverURL}/getScenarios`, { partyName: parName });
+            const serverResponse = await axios.post(`${serverURL}/getScenarios`, { uName: username.username, partyName: parName });
 
             // if the axios post request resolved, then set the parties array to the data of the response (an array)
             setScenarios(serverResponse.data);

@@ -281,7 +281,6 @@ app.post('/addParty', [
             return res.status(400).json({message: "Party already exists"});
         }
 
-        // get all the party names for the parties that belong to the user  
         const insertPartiesQuery = "INSERT INTO PARTIES (PARTYNAME, USER_ID) VALUES (?, ?)";
         const [rows3] = await db.promise().query(insertPartiesQuery, [req.body.pName, rows1[0].USER_ID]);
 
@@ -322,8 +321,8 @@ app.post('/addCharacter', [
         }
 
         // get the party id  
-        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
-        const [rows5] = await db.promise().query(pidQuery, [req.body.pName]);
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows5] = await db.promise().query(pidQuery, [req.body.pName, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows5.length === 0) {
@@ -376,16 +375,16 @@ app.post('/getCharacterNames', [
         }
 
         // get the party id  
-        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
-        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows2.length === 0) {
             return res.status(400).json({message: "Party does not exist"});
         }
 
-        const charNamesQuery = "SELECT CHARNAME FROM CHARACTERS WHERE CHARACTERS.PARTY_ID = ?";
-        const [rows3] = await db.promise().query(charNamesQuery, [rows2[0].PARTY_ID]);
+        const charNamesQuery = "SELECT CHARNAME FROM CHARACTERS JOIN PARTIES ON CHARACTERS.PARTY_ID = PARTIES.PARTY_ID WHERE CHARACTERS.PARTY_ID = ? AND PARTIES.USER_ID = ?";
+        const [rows3] = await db.promise().query(charNamesQuery, [rows2[0].PARTY_ID, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows3.length === 0) {
@@ -407,9 +406,18 @@ app.post('/getCharacterNames', [
 app.post('/getScenarios', async (req, res) => {
     try {
 
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+        
         // get the party id  
-        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
-        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows2.length === 0) {
@@ -566,8 +574,8 @@ app.post('/getCharacters', async (req, res) => {
         }
 
         // get the party id  
-        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
-        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows2.length === 0) {
@@ -591,9 +599,18 @@ app.post('/getCharacters', async (req, res) => {
 app.post('/getItems', async (req, res) => {
     try {
 
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [rows1] = await db.promise().query(uidQuery, [req.body.username]);
+
+        // check if the user id doesn't exist 
+        if (rows1.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+        
         // get the party id  
-        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
-        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? AND PARTIES.USER_ID = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName, rows1[0].USER_ID]);
 
         // check if the party id doesn't exist 
         if (rows2.length === 0) {
