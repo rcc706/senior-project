@@ -141,6 +141,7 @@ export default function Party({ partyName, partyDesc, partyId}) {
                         charLevel={char.CHARLEVEL}
                         totalXP={char.TOTALXP}
                         charGold={char.GOLD}
+                        partyName={partyName}
                     />
                 ))}
 

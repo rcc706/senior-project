@@ -11,9 +11,9 @@ export default function EditCharForm() {
 
             <form>
                 {/* Update the character level, total expierence, and gold*/}
-                <input type="number" name="charlevel" min="1" max="9" placeholder="Enter Level" required/> 
-                <input type="number" name="charexp" min="0" placeholder="Enter Experience Points" required/> 
-                <input type="number" name="chargold" min="0" placeholder="Enter Gold" required/> 
+                <input type="number" name="charlevel" min="1" max="9" placeholder="Enter Level"/> 
+                <input type="number" name="charexp" min="0" placeholder="Enter Experience Points"/> 
+                <input type="number" name="chargold" min="0" placeholder="Enter Gold"/> 
 
                 <br />
 

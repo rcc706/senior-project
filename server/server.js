@@ -586,6 +586,43 @@ app.post('/getCharacters', async (req, res) => {
     }
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// get items for the character
+app.post('/getItems', async (req, res) => {
+    try {
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
+        const [rows2] = await db.promise().query(pidQuery, [req.body.partyName]);
+
+        // check if the party id doesn't exist 
+        if (rows2.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        const cidQuery = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARNAME = ? AND CHARACTERS.PARTY_ID = ?";
+        const [rows3] = await db.promise().query(cidQuery, [req.body.charName, rows2[0].PARTY_ID]);
+
+        // check if the party id doesn't exist 
+        if (rows3.length === 0) {
+            return res.status(400).json({message: "Character does not exist in party"});
+        }
+
+        const charItems = "SELECT ITEMTYPE, ITEMNAME FROM CHARACTERS_ITEMS NATURAL JOIN ITEMS WHERE CHAR_ID = ?";
+        const [rows4] = await db.promise().query(charItems, [rows3[0].CHAR_ID]);
+
+
+        // all is good, return the party names as a JSON
+        return res.status(200).json(rows4);
+
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: error.message});
+    }
+
+});
+
+
 
 // Server is listening on the port specified in the server_configs.js file
 app.listen(SERVER_PORT, () => {
