@@ -6,7 +6,7 @@ import axios from "axios";
 // serverURL environment variable from the .env file to reduce hardcoding links everywhere
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
-export default function EditCharForm({onClose, setCorrectFormSubmission, charName}) {
+export default function EditCharForm({onClose, setCorrectFormSubmission, charName, partyName}) {
 
     const {username} = useSessionData();
     const [errors, setErrors] = useState([]);
@@ -36,7 +36,8 @@ export default function EditCharForm({onClose, setCorrectFormSubmission, charNam
             headitem: headitem,
             chestitem: chestitem,
             onehandeditem: onehandeditem,
-            feetitem: feetitem}, {withCredentials: true})
+            feetitem: feetitem,
+            partyName: partyName}, {withCredentials: true})
         .then(res => {
 
 			// Logged in should've been successful, so seting the username, password, errors states to empty 

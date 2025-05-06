@@ -603,7 +603,7 @@ app.post('/getItems', async (req, res) => {
         const cidQuery = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARNAME = ? AND CHARACTERS.PARTY_ID = ?";
         const [rows3] = await db.promise().query(cidQuery, [req.body.charName, rows2[0].PARTY_ID]);
 
-        // check if the party id doesn't exist 
+        // check if the character id doesn't exist 
         if (rows3.length === 0) {
             return res.status(400).json({message: "Character does not exist in party"});
         }
@@ -622,24 +622,56 @@ app.post('/getItems', async (req, res) => {
 
 });
 
-///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // update the character
-app.post('/updateCharacter', [
-    body("level")
-        .custom(async (level, {req}) => {
-            if (level.not().isEmpty()) {
-                try {
-                    const updateLevelQuery = "UPDATE CHARACTERS SET CHARLEVEL = ? WHERE PARTY_ID = ?";
-                    const [rows] = await db.promise().query(updateLevelQuery, [req.body.pName, rows2[0].PARTY_ID]);    
-                } catch (updateError) {
-                    throw new Error("Could not update level");
-                }
-            } 
-
-            return true;
-        })
-], async (req, res) => {
+app.post('/updateCharacter', async (req, res) => {
     try {
+        // get the user id 
+        const uidQuery = "SELECT USER_ID FROM USERS WHERE USER_NAME = ?";
+        const [users] = await db.promise().query(uidQuery, [req.body.uName]);
+
+        // check if the user id doesn't exist 
+        if (users.length === 0) {
+            return res.status(400).json({message: "User not registered"});
+        }
+
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ? and PARTIES.USER_ID = ?";
+        const [parties] = await db.promise().query(pidQuery, [req.body.partyName, users[0].USER_ID]);
+
+        // check if the party id doesn't exist 
+        if (parties.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
+        }
+
+        const cidQuery = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARNAME = ? AND CHARACTERS.PARTY_ID = ?";
+        const [chars] = await db.promise().query(cidQuery, [req.body.charName, parties[0].PARTY_ID]);
+
+        // check if the character id doesn't exist 
+        if (chars.length === 0) {
+            return res.status(400).json({message: "Character does not exist in party"});
+        }
+
+        if (req.body.level) {
+            const updateLevelQuery = "UPDATE CHARACTERS SET CHARLEVEL = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+            const [lvl] = await db.promise().query(updateLevelQuery, [req.body.level, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+        }
+
+        if (req.body.experience) {
+            const updateExperienceQuery = "UPDATE CHARACTERS SET TOTALXP = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+            const [exp] = await db.promise().query(updateExperienceQuery, [req.body.experience, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+        }
+
+        if (req.body.gold) {
+            const updateGoldQuery = "UPDATE CHARACTERS SET GOLD = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+            const [gld] = await db.promise().query(updateGoldQuery, [req.body.gold, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+        }
+
+
+
+
+
+
         return res.status(200).send("OKAY from updateCharacters");
     } catch (error) {
         // catch any server errors and send back a message
@@ -647,7 +679,7 @@ app.post('/updateCharacter', [
     }
 });
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Server is listening on the port specified in the server_configs.js file
 app.listen(SERVER_PORT, () => {

@@ -93,7 +93,7 @@ export default function Character({charClass, charName, charLevel, totalXP, char
             {isEditCharacterPopupOpen && (<div className={pop.popupOverlay}>
                     <div className={party.subcontainer}>
                         <button onClick={toggleEditCharacterPopup}>X</button>
-                        <EditCharForm onClose={toggleEditCharacterPopup} setCorrectFormSubmission={setCorrectFormSubmission} charName={charName}/>
+                        <EditCharForm onClose={toggleEditCharacterPopup} setCorrectFormSubmission={setCorrectFormSubmission} charName={charName} partyName={partyName}/>
                     </div>
             </div>)}
         </>
