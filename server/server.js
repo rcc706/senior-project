@@ -622,6 +622,31 @@ app.post('/getItems', async (req, res) => {
 
 });
 
+///
+// update the character
+app.post('/updateCharacter', [
+    body("level")
+        .custom(async (level, {req}) => {
+            if (level.not().isEmpty()) {
+                try {
+                    const updateLevelQuery = "UPDATE CHARACTERS SET CHARLEVEL = ? WHERE PARTY_ID = ?";
+                    const [rows] = await db.promise().query(updateLevelQuery, [req.body.pName, rows2[0].PARTY_ID]);    
+                } catch (updateError) {
+                    throw new Error("Could not update level");
+                }
+            } 
+
+            return true;
+        })
+], async (req, res) => {
+    try {
+        return res.status(200).send("OKAY from updateCharacters");
+    } catch (error) {
+        // catch any server errors and send back a message
+        return res.status(400).json({message: error.message});
+    }
+});
+
 
 
 // Server is listening on the port specified in the server_configs.js file

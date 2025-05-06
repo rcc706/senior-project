@@ -3,6 +3,8 @@ import pop from "../styles/popup.module.css";
 import party from "../styles/main.module.css";
 import axios from 'axios';
 import useSessionData from "../components/useSessionData";
+import EditCharForm from "../components/EditCharForm";
+
 
 // serverURL environment variable from the .env file to reduce hardcoding links everywhere
 const serverURL = import.meta.env.VITE_SERVER_URL;
@@ -87,6 +89,13 @@ export default function Character({charClass, charName, charLevel, totalXP, char
                     </li>
                 </ul>
             </div> 
+
+            {isEditCharacterPopupOpen && (<div className={pop.popupOverlay}>
+                    <div className={party.subcontainer}>
+                        <button onClick={toggleEditCharacterPopup}>X</button>
+                        <EditCharForm onClose={toggleEditCharacterPopup} setCorrectFormSubmission={setCorrectFormSubmission} charName={charName}/>
+                    </div>
+            </div>)}
         </>
     )
 }

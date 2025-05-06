@@ -16,8 +16,6 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
     let error_id = 0;
 	let errorsArray = [];
 
-    console.log(`onclose function: ${onClose}`)
-
     const submitHandler = e => {
 		e.preventDefault();
 
@@ -31,7 +29,6 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
 			errorsArray = [];
             setParName(pName);
             setCorrectFormSubmission(true);
-            console.log(onClose);
             onClose();
         }).catch(error => {
             if (error.response) {
@@ -64,7 +61,7 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
 
             {/* Form for user to type name of party in */}
             <form onSubmit={submitHandler}>
-                <input type="text" name="partyname" placeholder="Enter Party Name" value={pName} onChange={(e) => setPName(e.target.value)} required/>
+                <input type="text" name="partyname" placeholder="Enter Party Name" onChange={(e) => setPName(e.target.value)} required/>
                 <button type="submit" className={home.signlogButton}  style={{width: "35%"}}>EDIT PARTY</button>
             </form>
 

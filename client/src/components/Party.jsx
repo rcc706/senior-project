@@ -7,7 +7,6 @@ import NewCharForm from "../components/NewCharForm";
 import DeletePartyForm from "../components/DeletePartyForm";
 import AddScenarioForm from "../components/AddScenarioForm";
 import DeleteCharForm from "../components/DeleteCharForm";
-import EditCharForm from "../components/EditCharForm";
 import axios from 'axios';
 import useSessionData from "../components/useSessionData";
 import Character from "../components/Character";
@@ -17,7 +16,7 @@ import Character from "../components/Character";
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
 
-export default function Party({ partyName, partyDesc, partyId, renderParty}) {
+export default function Party({ partyName, partyDesc, partyId}) {
 
     const {username} = useSessionData();
 
@@ -50,10 +49,6 @@ export default function Party({ partyName, partyDesc, partyId, renderParty}) {
     const [godpleasehelpme, setgodpleasehelpme] = useState(true);
     const [correctFormSubmission, setCorrectFormSubmission] = useState(false);
     const [parName, setParName] = useState(partyName);
-
-    function handleRender() {
-        renderParty();
-    }
 
     const getScenarios = async () => {
         try {
@@ -93,7 +88,6 @@ export default function Party({ partyName, partyDesc, partyId, renderParty}) {
         if ((godpleasehelpme || correctFormSubmission) && username) {
             getScenarios();
             getCharacters();
-            handleRender();
         }
 
         setCorrectFormSubmission(false);
@@ -179,13 +173,6 @@ export default function Party({ partyName, partyDesc, partyId, renderParty}) {
                     isOpen={isDeleteCharPopupOpen} 
                     onClose={toggleDeleteCharPopupOpen} 
                     Component={DeleteCharForm}
-                />
-
-                <Popup 
-                    key={nextIndex++}
-                    isOpen={isEditCharPopupOpen} 
-                    onClose={toggleEditCharPopupOpen} 
-                    Component={EditCharForm}
                 />
 
                 {characters.length < 4 && (
