@@ -186,12 +186,18 @@ export default function Party({ partyName, partyDesc, partyId}) {
                     <div className={party.subcontainer} style={{width: "20%"}}>
                         <div className={party.flexCont}>
                             <button onClick={toggleNewCharacterPopup} className={party.userprofButton}>Add Character</button>
-                            <Popup 
-                                key={nextIndex++}
-                                isOpen={isNewCharacterPopupOpen} 
-                                onClose={toggleNewCharacterPopup} 
-                                Component={NewCharForm}
-                            />                    
+                            {isNewCharacterPopupOpen && (
+                                <div className={pop.popupOverlay}>
+                                    <div className={party.subcontainer}>
+                                        <button onClick={toggleNewCharacterPopup}>X</button>
+                                        <NewCharForm 
+                                            onClose={toggleNewCharacterPopup}
+                                            setCorrectFormSubmission={setCorrectFormSubmission}
+                                            partyName={partyName}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

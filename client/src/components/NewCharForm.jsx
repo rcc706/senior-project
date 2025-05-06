@@ -6,10 +6,10 @@ import axios from "axios";
 // serverURL environment variable from the .env file to reduce hardcoding links everywhere
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
-export default function NewCharForm({partyId}) {
-    const {username, email} = useSessionData();
+export default function NewCharForm({onClose, setCorrectFormSubmission, partyName}) {
+    const {username} = useSessionData();
     const [errors, setErrors] = useState([]);
-    const [characters, setCharacters] = useState([]);
+    //const [characters, setCharacters] = useState([]);
 
     const [charClass, setCharClass] = useState("");
     const [charName, setCharName] = useState("");
@@ -20,14 +20,14 @@ export default function NewCharForm({partyId}) {
     const submitHandler = e => {
         e.preventDefault();
 
-		axios.post(`${serverURL}/addCharacter`, { uName: username.username, chName: charName, chClass: charClass, partyId: partyId}, {withCredentials: true})
+		axios.post(`${serverURL}/addCharacter`, { uName: username.username, chName: charName, chClass: charClass, pName: partyName}, {withCredentials: true})
         .then((res) => {
             // Logged in should've been successful, so seting the username, password, errors states to empty 
 			setErrors([]);
 			errorsArray = [];
+            setCorrectFormSubmission(true);
+            //setCharacters(res.data);
             onClose();
-
-            setCharacters(res.data);
         }).catch(error => {
             if (error.response) {
                 if (error.response.data.errors) {
@@ -60,10 +60,10 @@ export default function NewCharForm({partyId}) {
             <form>
                 <select name="charClass" required onChange={e => setCharClass(e.target.value)}>
                     <option defaultValue={""}>Pick Hero Class</option>
-                    <option value="hatchet">Inox Hatchet</option>
-                    <option value="demolitionist">Quatryl Demolitionist</option>
-                    <option value="voidwarden">Human Voidwarden</option>
-                    <option value="redguard">Valrath Red Guard</option>
+                    <option value="Inox Hatchet">Inox Hatchet</option>
+                    <option value="Quatryl Demolitionist">Quatryl Demolitionist</option>
+                    <option value="Human Voidwarden">Human Voidwarden</option>
+                    <option value="Valrath Red Guard">Valrath Red Guard</option>
                 </select>
                 <input type="text" name="charname" placeholder="Enter Character Name" onChange={e => setCharName(e.target.value)}required />
                 <button onClick={submitHandler} type="submit" className={home.signlogButton} style={{width: "40%"}}>CREATE CHARACTER</button>

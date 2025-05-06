@@ -244,7 +244,7 @@ app.post('/getPartyNames', async (req, res) => {
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 });
 
@@ -290,7 +290,7 @@ app.post('/addParty', [
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 
 });
@@ -321,30 +321,32 @@ app.post('/addCharacter', [
             return res.status(400).json({message: "User not registered"});
         }
 
-        const dupeCharNames = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARNAME = ? AND CHARACTERS.PARTY_ID = ?";
-        const [rows2] = await db.promise().query(dupeCharNames, [req.body.chName, req.body.partyId]);
+        // get the party id  
+        const pidQuery = "SELECT PARTY_ID FROM PARTIES WHERE PARTYNAME = ?";
+        const [rows5] = await db.promise().query(pidQuery, [req.body.pName]);
 
-        if (rows2.length > 0) {
-            return res.status(400).json({message: "Character name already exists in party"})
+        // check if the party id doesn't exist 
+        if (rows5.length === 0) {
+            return res.status(400).json({message: "Party does not exist"});
         }
 
-        const dupeCharClass = "SELECT CHAR_ID FROM CHARACTERS WHERE CHARCLASS = ? AND CHARACTERS.PARTY_ID = ?";
-        const [rows3] = await db.promise().query(dupeCharClass, [req.body.chClass, req.body.partyId]);
+        const dupeCharNames = "SELECT CHAR_ID FROM CHARACTERS WHERE (CHARNAME = ? OR CHARCLASS = ?) AND CHARACTERS.PARTY_ID = ?";
+        const [rows2] = await db.promise().query(dupeCharNames, [req.body.chName, req.body.chClass, rows5[0].PARTY_ID]);
 
-        if (rows3.length > 0) {
-            return res.status(400).json({message: "Character class already exists in party"})
+        if (rows2.length > 0) {
+            return res.status(400).json({message: "Character with name or class already exists in the party"})
         }
 
         // get all the party names for the parties that belong to the user  
-        const insertCharQuery = "INSERT INTO CHARACTRS (CHARNAME, CHARCLASS, PARTY_ID) VALUES (?, ?, ?)";
-        const [rows4] = await db.promise().query(insertCharQuery, [req.body.ChName, req.body.chClass, req.body.partyId]);
+        const insertCharQuery = "INSERT INTO CHARACTERS (CHARNAME, CHARCLASS, PARTY_ID, TOTALXP, CHARLEVEL, GOLD) VALUES (?, ?, ?, ?, ?, ?)";
+        const [rows4] = await db.promise().query(insertCharQuery, [req.body.chName, req.body.chClass, rows5[0].PARTY_ID, 0, 0, 0]);
 
         // all is good, 
         return res.status(200).send("Character added successfully");
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 
 });
@@ -395,7 +397,7 @@ app.post('/getCharacterNames', [
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 });
 
@@ -422,7 +424,7 @@ app.post('/getScenarios', async (req, res) => {
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 });
 
@@ -580,7 +582,7 @@ app.post('/getCharacters', async (req, res) => {
 
     } catch (error) {
         // catch any server errors and send back a message
-        return res.status(400).json({message: "Server error!"});
+        return res.status(400).json({message: error.message});
     }
 });
 
