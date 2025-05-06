@@ -23,7 +23,6 @@ export default function EditPartyForm({onClose, setCorrectFormSubmission, partyN
 		// post request to the server with sending the username and password from the login form
 		axios.post(`${serverURL}/updatePartyName`, { uName: username.username, pName: pName, currPName: partyName}, {withCredentials: true})
         .then(res => {
-
 			// Logged in should've been successful, so seting the username, password, errors states to empty 
 			setErrors([]);
 			errorsArray = [];
