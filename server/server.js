@@ -652,25 +652,101 @@ app.post('/updateCharacter', async (req, res) => {
             return res.status(400).json({message: "Character does not exist in party"});
         }
 
-        if (req.body.level) {
-            const updateLevelQuery = "UPDATE CHARACTERS SET CHARLEVEL = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
-            const [lvl] = await db.promise().query(updateLevelQuery, [req.body.level, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+        try {
+            if (req.body.level) {
+                const updateLevelQuery = "UPDATE CHARACTERS SET CHARLEVEL = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+                const [lvl] = await db.promise().query(updateLevelQuery, [req.body.level, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+            }
+    
+            if (req.body.experience) {
+                const updateExperienceQuery = "UPDATE CHARACTERS SET TOTALXP = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+                const [exp] = await db.promise().query(updateExperienceQuery, [req.body.experience, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+            }
+    
+            if (req.body.gold) {
+                const updateGoldQuery = "UPDATE CHARACTERS SET GOLD = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
+                const [gld] = await db.promise().query(updateGoldQuery, [req.body.gold, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+            }    
+        } catch (error) {
+            return res.status(400).json({message: "Could not update character stats"});
         }
 
-        if (req.body.experience) {
-            const updateExperienceQuery = "UPDATE CHARACTERS SET TOTALXP = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
-            const [exp] = await db.promise().query(updateExperienceQuery, [req.body.experience, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
+        try {
+            if (req.body.headitem) {
+                // get item id
+                const itemIdQuery = "SELECT ITEM_ID FROM ITEMS WHERE ITEMNAME = ?";
+                const [itemid] = await db.promise().query(itemIdQuery, [req.body.headitem]);
+
+                // if character doesn't have a head item, insert, else, update
+                const charItemQuery = "SELECT ITEM_ID, ITEMTYPE FROM CHARACTERS_ITEMS NATURAL JOIN ITEMS WHERE CHAR_ID = ? AND ITEMTYPE = ?"
+                const [chritem] = await db.promise().query(charItemQuery, [chars[0].CHAR_ID, "head"]);    
+
+                if (chritem.length === 0) {
+                    const insertHeadQuery = "INSERT INTO CHARACTERS_ITEMS VALUES (?, ?)";
+                    const [inHead] = await db.promise().query(insertHeadQuery, [chars[0].CHAR_ID, itemid[0].ITEM_ID]);       
+                } else {
+                    const updateHeadQuery = "UPDATE CHARACTERS_ITEMS SET ITEM_ID = ? WHERE CHAR_ID = ?";
+                    const [upHead] = await db.promise().query(updateHeadQuery, [itemid[0].ITEM_ID, chars[0].CHAR_ID]); 
+                }
+            }   
+            
+            if (req.body.chestitem) {
+                // get item id
+                const itemIdQuery = "SELECT ITEM_ID FROM ITEMS WHERE ITEMNAME = ?";
+                const [itemid] = await db.promise().query(itemIdQuery, [req.body.chestitem]);
+
+                // if character doesn't have a head item, insert, else, update
+                const charItemQuery = "SELECT ITEM_ID, ITEMTYPE FROM CHARACTERS_ITEMS NATURAL JOIN ITEMS WHERE CHAR_ID = ? AND ITEMTYPE = ?"
+                const [chritem] = await db.promise().query(charItemQuery, [chars[0].CHAR_ID, "chest"]);    
+
+                if (chritem.length === 0) {
+                    const insertHeadQuery = "INSERT INTO CHARACTERS_ITEMS VALUES (?, ?)";
+                    const [inHead] = await db.promise().query(insertHeadQuery, [chars[0].CHAR_ID, itemid[0].ITEM_ID]);       
+                } else {
+                    const updateHeadQuery = "UPDATE CHARACTERS_ITEMS SET ITEM_ID = ? WHERE CHAR_ID = ?";
+                    const [upHead] = await db.promise().query(updateHeadQuery, [itemid[0].ITEM_ID, chars[0].CHAR_ID]); 
+                }
+            }   
+
+            if (req.body.onehandeditem) {
+                // get item id
+                const itemIdQuery = "SELECT ITEM_ID FROM ITEMS WHERE ITEMNAME = ?";
+                const [itemid] = await db.promise().query(itemIdQuery, [req.body.onehandeditem]);
+
+                // if character doesn't have a head item, insert, else, update
+                const charItemQuery = "SELECT ITEM_ID, ITEMTYPE FROM CHARACTERS_ITEMS NATURAL JOIN ITEMS WHERE CHAR_ID = ? AND ITEMTYPE = ?"
+                const [chritem] = await db.promise().query(charItemQuery, [chars[0].CHAR_ID, "1 hand"]);    
+
+                if (chritem.length === 0) {
+                    const insertHeadQuery = "INSERT INTO CHARACTERS_ITEMS VALUES (?, ?)";
+                    const [inHead] = await db.promise().query(insertHeadQuery, [chars[0].CHAR_ID, itemid[0].ITEM_ID]);       
+                } else {
+                    const updateHeadQuery = "UPDATE CHARACTERS_ITEMS SET ITEM_ID = ? WHERE CHAR_ID = ?";
+                    const [upHead] = await db.promise().query(updateHeadQuery, [itemid[0].ITEM_ID, chars[0].CHAR_ID]); 
+                }
+            }   
+
+            if (req.body.feetitem) {
+                // get item id
+                const itemIdQuery = "SELECT ITEM_ID FROM ITEMS WHERE ITEMNAME = ?";
+                const [itemid] = await db.promise().query(itemIdQuery, [req.body.feetitem]);
+
+                // if character doesn't have a head item, insert, else, update
+                const charItemQuery = "SELECT ITEM_ID, ITEMTYPE FROM CHARACTERS_ITEMS NATURAL JOIN ITEMS WHERE CHAR_ID = ? AND ITEMTYPE = ?"
+                const [chritem] = await db.promise().query(charItemQuery, [chars[0].CHAR_ID, "legs"]);    
+
+                if (chritem.length === 0) {
+                    const insertHeadQuery = "INSERT INTO CHARACTERS_ITEMS VALUES (?, ?)";
+                    const [inHead] = await db.promise().query(insertHeadQuery, [chars[0].CHAR_ID, itemid[0].ITEM_ID]);       
+                } else {
+                    const updateHeadQuery = "UPDATE CHARACTERS_ITEMS SET ITEM_ID = ? WHERE CHAR_ID = ?";
+                    const [upHead] = await db.promise().query(updateHeadQuery, [itemid[0].ITEM_ID, chars[0].CHAR_ID]); 
+                }
+            }   
+        } catch (error) {
+            return res.status(400).json({message: error.message});
+            // return res.status(400).json({message: "Could not update character items"});
         }
-
-        if (req.body.gold) {
-            const updateGoldQuery = "UPDATE CHARACTERS SET GOLD = ? WHERE PARTY_ID = ? AND CHAR_ID = ?";
-            const [gld] = await db.promise().query(updateGoldQuery, [req.body.gold, parties[0].PARTY_ID, chars[0].CHAR_ID]);    
-        }
-
-
-
-
-
 
         return res.status(200).send("OKAY from updateCharacters");
     } catch (error) {
